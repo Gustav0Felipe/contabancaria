@@ -34,7 +34,6 @@ public class Menu {
 			System.out.println("                                                     ");
 			System.out.println("*****************************************************");
 			System.out.print("Entre com a opção desejada: ");
-
 			opcao = scan.nextInt();
 			scan.nextLine();
 			
@@ -62,7 +61,7 @@ public class Menu {
 					contas.add(conta);
 					break;
 				case 2:
-					System.out.println("Listar todas as Contas: ");
+					System.out.println("\nListar todas as Contas: ");
 					for(Conta item :contas) {
 						System.out.printf(Locale.US, item.codigo + " " + item.nome + " %.2f \n", item.saldo);
 					}
@@ -115,9 +114,9 @@ public class Menu {
 					}
 					break;
 				case 7:
-					System.out.println("Depósito\n\n");
+					System.out.print("Depósito na Conta de Codigo: ");
 					encontrar = scan.nextInt();
-					System.out.print("Quantia: ");
+					System.out.print("Valor: ");
 					float deposito = scan.nextFloat();
 					for(Conta item: contas) {
 						if(item.codigo == encontrar) {
