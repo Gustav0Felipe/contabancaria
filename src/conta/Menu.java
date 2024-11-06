@@ -1,7 +1,6 @@
 package conta;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -12,13 +11,13 @@ public class Menu {
 
 		Scanner scan = new Scanner(System.in);
 		
-		List<Conta> contas = new LinkedList<Conta>();
+		HashMap<Integer, Conta> contas = new HashMap<Integer, Conta>();
 		int codigo = 1;
 		int opcao;
 
 		while (true) {
 
-			System.out.println(Cores.CYAN_BACKGROUND + Cores.TEXT_BLACK + "*".repeat(53) + "\n"
+			System.out.println(Cores.BLACK_BACKGROUND + Cores.TEXT_WHITE + "*".repeat(53) + "\n"
 								+" ".repeat(53) 
 								+"\n                BANCO DO BRAZIL COM Z                \n"
 								+" ".repeat(53) + "\n"
@@ -35,7 +34,7 @@ public class Menu {
 								+"              9 - Sair                               \n"
 								+" ".repeat(53) + "\n"
 								+"*".repeat(53));
-			System.out.print("Entre com a opção desejada:                          ");
+			System.out.print(Cores.TEXT_RESET + "Entre com a opção desejada: ");
 			opcao = scan.nextInt();
 			scan.nextLine();
 			
@@ -48,107 +47,93 @@ public class Menu {
 			
 			Conta conta = new Conta();
 			int encontrar = 0;
-			
+			System.out.println(
+					contas.keySet()
+					);
 			switch (opcao) {
 				case 1:
-					System.out.print("Nome: ");
 					conta = new Conta();
-					conta.nome = scan.nextLine();
+					
+					System.out.print("Agencia: ");
+					conta.setAgencia(scan.nextInt());
+					
+					System.out.print("Tipo: ");
+					conta.setTipo(scan.nextInt());
+					
+					scan.nextLine();
+					System.out.print("Titular: ");
+					conta.setTitular(scan.nextLine());
 					
 					System.out.print("Saldo: ");
-					conta.saldo = scan.nextFloat();
+					conta.setSaldo(scan.nextFloat());
 					
-					conta.codigo = codigo;
+					conta.setNumero(codigo);
+					contas.put(codigo, conta);
 					codigo++;
-					contas.add(conta);
 					break;
 				case 2:
+					contas.get(1);
 					System.out.println("\nListar todas as Contas: ");
-					for(Conta item :contas) {
-						System.out.printf(Locale.US, item.codigo + " " + item.nome + " %.2f \n", item.saldo);
-					}
 					
+					for(Conta item :contas.values()) {
+						System.out.printf(Locale.US, item.getNumero() + " " + item.getTitular() + " %.2f \n", item.getSaldo());
+					}
 					break;
 				case 3:
-					System.out.println("Consultar dados da Conta - por número: ");
-					encontrar = scan.nextInt();
-					for(Conta item: contas) {
-						if(item.codigo == encontrar) 
-							System.out.printf(Locale.US, item.codigo + " " + item.nome + " %.2f \n", item.saldo);
-					}
-
+					System.out.print("Consultar dados da Conta - por número: ");
+					contas.get(scan.nextInt()).visualizar();;
 					break;
 				case 4:
-					System.out.println("Atualizar dados da Conta de Codigo: ");
+					System.out.print("Atualizar dados da Conta de Codigo: ");
 					encontrar = scan.nextInt();
 					scan.nextLine();
-					
-					for(Conta item: contas) {
-						if(item.codigo == encontrar) {
-							System.out.print("Novo Nome: ");
-							String nome = scan.nextLine();
+						
+					Conta item = contas.get(encontrar);
+					System.out.print("Novo Nome: ");
+					item.setTitular(scan.nextLine());
 							
-							System.out.print("Novo Saldo: ");
-							float saldo = scan.nextFloat();
-							item.atualizar(nome, saldo);
-						}
-					}
+					System.out.print("Novo Saldo: ");
+					item.setSaldo(scan.nextFloat());
+					
 					break;
 				case 5:
 					System.out.print("Apagar a Conta de Codigo: ");
-					encontrar = scan.nextInt();
-					for(Conta item: contas) {
-						if(item.codigo == encontrar) {
-							contas.remove(item);
-						}
-					}
+					contas.remove(scan.nextInt());
 					break;
 				case 6:
 					System.out.print("Saque Conta de Codigo: ");
-					encontrar = scan.nextInt();
+					conta = contas.get(scan.nextInt());
+					
 					System.out.print("Quantia: ");
-					float saque = scan.nextFloat();
-					for(Conta item: contas) {
-						if(item.codigo == encontrar) {
-							if(item.saque(saque)) System.out.println("Saque feito com sucesso!, Saldo atual: " + item.saldo);
-							else System.out.println("Saldo Insuficiente: " + item.saldo);;
-						}
-					}
+					if(conta.sacar(scan.nextFloat()))
+						System.out.printf(Locale.US, "Saque feito com sucesso! Saldo Atual: %.2f \n", conta.getSaldo());
+				
 					break;
 				case 7:
 					System.out.print("Depósito na Conta de Codigo: ");
 					encontrar = scan.nextInt();
+					conta = contas.get(encontrar);
+
 					System.out.print("Valor: ");
-					float deposito = scan.nextFloat();
-					for(Conta item: contas) {
-						if(item.codigo == encontrar) {
-							item.deposito(deposito);
-							System.out.println("Deposito feito com sucesso!, Saldo atual: " + item.saldo);
-						}
-					}
+					conta.depositar(scan.nextFloat());
+					
+					System.out.printf(Locale.US, "Deposito feito com sucesso! Saldo atual: %.2f \n", conta.getSaldo());
 					break;
 				case 8:
 					System.out.println("Transferência entre as Contas: ");
 					System.out.print("Devedor: ");
-					Conta devedor = new Conta();
-					devedor.codigo = scan.nextInt();
+					Conta devedor = contas.get(scan.nextInt());
 
 					System.out.print("Recebedor: ");
 					
-					int recebedor = scan.nextInt();
+					Conta recebedor = contas.get(scan.nextInt());
 					
 					System.out.print("Valor: ");
 					float valor = scan.nextFloat();
 					
-					for(Conta item: contas) {
-						if(item.codigo == devedor.codigo) devedor = item;
-					}
-					for(Conta item: contas) {
-						if(item.codigo == recebedor) {
-							if(devedor.pagar(item, valor)) System.out.println("Transferencia bem Sucedida!");
-							else System.out.println("Saldo Insuficiente!");
-						}
-					}
+					if(devedor.pagar(recebedor, valor)) System.out.println("Transferencia bem Sucedida!");
+					else System.out.println("Saldo Insuficiente!");
+
 					break;
 				default:
 					System.out.println("\nOpção Inválida!\n");
