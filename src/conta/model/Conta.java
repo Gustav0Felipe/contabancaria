@@ -1,4 +1,4 @@
-package conta;
+package conta.model;
 
 public class Conta {	
 	
