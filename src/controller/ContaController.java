@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.HashMap;
+import java.util.Scanner;
 
 import conta.model.Conta;
 import conta.repository.ContaRepository;
@@ -34,8 +35,15 @@ public class ContaController implements ContaRepository{
 
 	@Override
 	public void atualizar(Conta conta) {
-		
-		
+		Scanner scan = new Scanner(System.in);
+		scan.nextLine();
+			
+		System.out.print("Novo Nome: ");
+		conta.setTitular(scan.nextLine());
+				
+		System.out.print("Novo Saldo: ");
+		conta.setSaldo(scan.nextFloat());
+		scan.close();
 	}
 
 	@Override

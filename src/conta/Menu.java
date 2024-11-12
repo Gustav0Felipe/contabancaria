@@ -124,13 +124,9 @@ public class Menu {
 				case 4:
 					System.out.print("Atualizar dados da Conta de Codigo: ");
 					Conta item = contas.pegarContaPorNumero(scan.nextInt());
-					scan.nextLine();
-						
-					System.out.print("Novo Nome: ");
-					item.setTitular(scan.nextLine());
-							
-					System.out.print("Novo Saldo: ");
-					item.setSaldo(scan.nextFloat());
+					
+					contas.atualizar(item);
+					
 					keyPress();
 					break;
 				case 5:
