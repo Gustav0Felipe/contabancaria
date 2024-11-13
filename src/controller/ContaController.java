@@ -38,7 +38,7 @@ public class ContaController implements ContaRepository{
 		Optional<Conta> contaBuscar = Optional.ofNullable(pegarContaPorNumero(numero));
 		
 		if(contaBuscar.isPresent()) {
-			listaContas.replace(contaBuscar.get().getNumero(), contaBuscar.get());
+			listaContas.replace(contaBuscar.get().getNumero(), conta);
 			System.out.println("\nA Conta numero: " + contaBuscar.get().getNumero() + " foi atualizada com sucesso!");
 		}else
 			System.out.println("\nA Conta numero: " + contaBuscar.get().getNumero() + " não foi encontrada!");

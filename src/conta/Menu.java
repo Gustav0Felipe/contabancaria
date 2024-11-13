@@ -2,8 +2,10 @@ package conta;
 
 import java.io.IOException;
 import java.util.InputMismatchException;
+import java.util.Optional;
 import java.util.Scanner;
 
+import conta.model.Conta;
 import conta.model.ContaCorrente;
 import conta.model.ContaPoupanca;
 import conta.util.Cores;
@@ -71,7 +73,8 @@ public class Menu {
 			switch (opcao) {
 				case 1:
 					numero = contas.gerarNumero();
-
+					
+					try {
 					System.out.print("Agencia: ");
 					agencia = scan.nextInt();
 					
@@ -86,6 +89,7 @@ public class Menu {
 					saldo = scan.nextFloat();
 					
 					
+					
 					switch(tipo) {
 					case 1:
 						System.out.println("Digite o limite da conta: ");
@@ -97,6 +101,11 @@ public class Menu {
 						System.out.println("Digite o dia do Aniversário da conta: ");
 						aniversario = scan.nextInt();
 						contas.cadastrar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+						break;
+						}
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						scan.nextLine();
 						break;
 					}
 					keyPress();
@@ -115,62 +124,85 @@ public class Menu {
 				case 4:
 					System.out.println("Atualizar dados da Conta \n");
 					System.out.println("Digite o número da Conta: ");
-					numero = scan.nextInt();
-					var buscaConta = contas.pegarContaPorNumero(numero);
-
-					if(buscaConta != null) {
-						
-						tipo = buscaConta.getTipo();
-						
-						System.out.println("Digite o Numero da Agência: ");
-						agencia = scan.nextInt();
-						
-						System.out.println("Digite o Nome do Titular: ");
-						scan.skip("\\R?");
-						 titular = scan.nextLine();
-
-						System.out.println("Digite o Saldo da Conta (R$): ");
-						saldo = scan.nextFloat();
 					
+					try{
+						numero = scan.nextInt();
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						break;
+					}
+					Optional<Conta> buscaConta = Optional.ofNullable(contas.pegarContaPorNumero(numero));
+					
+					if(buscaConta.isPresent()) {
+						try {
+							tipo = buscaConta.get().getTipo();
+							
+							System.out.println("Digite o Numero da Agência: ");
+							agencia = scan.nextInt();
+							
+							System.out.println("Digite o Nome do Titular: ");
+							scan.nextLine();
+							titular = scan.nextLine();
+	
+							System.out.println("Digite o Saldo da Conta (R$): ");
+							saldo = scan.nextFloat();
 						
-						switch(tipo) {
-						case 1 -> {
-							System.out.println("Digite o Limite de Credito(R$): ");
-							limite = scan.nextFloat();
 							
-							contas.atualizar(new ContaCorrente(numero, agencia, tipo, titular, saldo, limite));
+							switch(tipo) {
+							case 1 -> {
+								System.out.println("Digite o Limite de Credito(R$): ");
+								limite = scan.nextFloat();
+								
+								contas.atualizar(new ContaCorrente(numero, agencia, tipo, titular, saldo, limite));
+								}
+							case 2 -> {
+								System.out.println("Digite o dia do Aniversário da Conta: ");
+								aniversario = scan.nextInt();
+								
+								contas.atualizar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+								}
+							default -> {
+								System.out.println("Tipo de Conta Invalido.");
+								}
 							}
-						case 2 -> {
-							System.out.println("Digite o dia do Aniversário da Conta: ");
-							aniversario = scan.nextInt();
-							
-							contas.atualizar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+						}catch(InputMismatchException e){
+							System.out.println("\nDigite valores validos!");
+							scan.nextLine();
+							break;
 							}
-						default -> {
-							System.out.println("Tipo de Conta Invalido.");
-							}
-						}
 					}else System.out.println("A Conta não foi Encontrada!");
-				
+
+										
 					keyPress();
 					break;
 				case 5:
 					System.out.print("Apagar a Conta\n");
 					System.out.print("Digite o número da conta: ");
-					contas.deletar(scan.nextInt());
+					try {
+						contas.deletar(scan.nextInt());
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						scan.nextLine();
+						break;
+					}
 					keyPress();
 					break;
 				case 6:
 					System.out.print("Saque\n");
 					System.out.println("Digite o Numero da Conta: ");
-					numero = scan.nextInt();
-					
-					
-					do {
-						System.out.print("Digite o Valor do Saque (R$): ");
-						valor = scan.nextFloat();
-					}while(valor <= 0);
-					
+					try {
+						numero = scan.nextInt();
+						
+						do {
+							System.out.print("Digite o Valor do Saque (R$): ");
+							valor = scan.nextFloat();
+						}while(valor <= 0);
+						
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						scan.nextLine();
+						break;
+					}
 					contas.sacar(numero, valor);
 					
 					keyPress();
@@ -178,19 +210,26 @@ public class Menu {
 				case 7:
 					System.out.print("Depósito \n");
 					System.out.print("Digite o Numero da Conta: ");
+					try {
 					numero = scan.nextInt();
-					
 					
 					do {
 						System.out.println("Digite o Valor do Depósito (R$): ");
 						valor = scan.nextFloat();
 					}while(valor <= 0);
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						scan.nextLine();
+						break;
+					}
 					
 					contas.depositar(numero, valor);
 					keyPress();
 					break;
 				case 8:
-					System.out.println("Transferência entre Contas: ");
+					try{
+						System.out.println("Transferência entre Contas: ");
+					
 					System.out.print("Digite o Numero da Conta de Origem: ");
 					numero = scan.nextInt();
 					
@@ -203,7 +242,11 @@ public class Menu {
 					}while(valor <= 0);
 				
 					contas.transferir(numero, numeroDestino, valor);
-
+					}catch(InputMismatchException e){
+						System.out.println("\nDigite valores validos!");
+						scan.nextLine();
+						break;
+					}
 					keyPress();
 					break;
 				default:
