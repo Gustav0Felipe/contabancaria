@@ -2,10 +2,8 @@ package conta;
 
 import java.io.IOException;
 import java.util.InputMismatchException;
-import java.util.Locale;
 import java.util.Scanner;
 
-import conta.model.Conta;
 import conta.model.ContaCorrente;
 import conta.model.ContaPoupanca;
 import conta.util.Cores;
@@ -30,7 +28,9 @@ public class Menu {
 		ContaCorrente cp2 = new ContaCorrente(contas.gerarNumero(), 125, 2, "Juliana Ramos", 8000f, 15);
 		contas.cadastrar(cp2);
 
-		int opcao;
+		int opcao, numero, agencia, tipo, aniversario, numeroDestino;
+		String titular;
+		float saldo, limite, valor;
 		
 		while (true) {
 
@@ -68,46 +68,37 @@ public class Menu {
 				System.exit(0);
 			}
 			
-			Conta conta = null;
-			
 			switch (opcao) {
 				case 1:
-					System.out.println("Conta Corrente[1] ou Poupança[2]?");
-					opcao = scan.nextInt();
-					switch(opcao) {
-					case 1:
-						ContaCorrente contaCorrente = new ContaCorrente();
-						System.out.println("Digite o limite da conta: ");
-						
-						contaCorrente.setLimite(scan.nextFloat());
-						contaCorrente.setTipo(1);
-						scan.nextLine();
-						
-						conta = contaCorrente;
-						break;
-					case 2:
-						ContaPoupanca contaPoupanca = new ContaPoupanca();
-						System.out.println("Digite o dia do Aniversário da conta: ");
-						contaPoupanca.setAniversario(scan.nextInt());
-						contaPoupanca.setTipo(2);
-						scan.nextLine();
-						
-						conta = contaPoupanca;
-						break;
-					}
+					numero = contas.gerarNumero();
+
 					System.out.print("Agencia: ");
-					conta.setAgencia(scan.nextInt());
+					agencia = scan.nextInt();
 					
+					System.out.println("Conta Corrente[1] ou Poupança[2]?");
+					tipo = scan.nextInt();
+
 					scan.nextLine();
 					System.out.print("Titular: ");
-					conta.setTitular(scan.nextLine());
+					titular = scan.nextLine();
 					
 					System.out.print("Saldo: ");
-					conta.setSaldo(scan.nextFloat());
+					saldo = scan.nextFloat();
 					
-					conta.setNumero(contas.gerarNumero());
-					contas.cadastrar(conta);
 					
+					switch(tipo) {
+					case 1:
+						System.out.println("Digite o limite da conta: ");
+						
+						limite = scan.nextFloat();
+						contas.cadastrar(new ContaCorrente(numero, agencia, tipo, titular, saldo, limite));
+						break;
+					case 2:
+						System.out.println("Digite o dia do Aniversário da conta: ");
+						aniversario = scan.nextInt();
+						contas.cadastrar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+						break;
+					}
 					keyPress();
 					break;
 				case 2:
@@ -122,54 +113,96 @@ public class Menu {
 					keyPress();
 					break;
 				case 4:
-					System.out.print("Atualizar dados da Conta de Codigo: ");
-					Conta item = contas.pegarContaPorNumero(scan.nextInt());
+					System.out.println("Atualizar dados da Conta \n");
+					System.out.println("Digite o número da Conta: ");
+					numero = scan.nextInt();
+					var buscaConta = contas.pegarContaPorNumero(numero);
+
+					if(buscaConta != null) {
+						
+						tipo = buscaConta.getTipo();
+						
+						System.out.println("Digite o Numero da Agência: ");
+						agencia = scan.nextInt();
+						
+						System.out.println("Digite o Nome do Titular: ");
+						scan.skip("\\R?");
+						 titular = scan.nextLine();
+
+						System.out.println("Digite o Saldo da Conta (R$): ");
+						saldo = scan.nextFloat();
 					
-					contas.atualizar(item);
-					
+						
+						switch(tipo) {
+						case 1 -> {
+							System.out.println("Digite o Limite de Credito(R$): ");
+							limite = scan.nextFloat();
+							
+							contas.atualizar(new ContaCorrente(numero, agencia, tipo, titular, saldo, limite));
+							}
+						case 2 -> {
+							System.out.println("Digite o dia do Aniversário da Conta: ");
+							aniversario = scan.nextInt();
+							
+							contas.atualizar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+							}
+						default -> {
+							System.out.println("Tipo de Conta Invalido.");
+							}
+						}
+					}else System.out.println("A Conta não foi Encontrada!");
+				
 					keyPress();
 					break;
 				case 5:
-					System.out.print("Apagar a Conta de Codigo: ");
+					System.out.print("Apagar a Conta\n");
+					System.out.print("Digite o número da conta: ");
 					contas.deletar(scan.nextInt());
-					scan.nextLine();
 					keyPress();
 					break;
-				//Daqui para baixo ainda está sendo usado os metodos das contas já que os exercicios ainda não pediram para implementar tudo.
 				case 6:
-					System.out.print("Saque Conta de Codigo: ");
-					conta = contas.pegarContaPorNumero(scan.nextInt());
+					System.out.print("Saque\n");
+					System.out.println("Digite o Numero da Conta: ");
+					numero = scan.nextInt();
 					
-					System.out.print("Quantia: ");
-					if(conta.sacar(scan.nextFloat()))
-						System.out.printf(Locale.US, "Saque feito com sucesso! Saldo Atual: %.2f \n", conta.getSaldo());
+					
+					do {
+						System.out.print("Digite o Valor do Saque (R$): ");
+						valor = scan.nextFloat();
+					}while(valor <= 0);
+					
+					contas.sacar(numero, valor);
 					
 					keyPress();
 					break;
 				case 7:
-					System.out.print("Depósito na Conta de Codigo: ");
-					conta = contas.pegarContaPorNumero(scan.nextInt());
+					System.out.print("Depósito \n");
+					System.out.print("Digite o Numero da Conta: ");
+					numero = scan.nextInt();
 					
-					System.out.print("Valor: ");
-					conta.depositar(scan.nextFloat());
 					
-					System.out.printf(Locale.US, "Deposito feito com sucesso! Saldo atual: %.2f \n", conta.getSaldo());
+					do {
+						System.out.println("Digite o Valor do Depósito (R$): ");
+						valor = scan.nextFloat();
+					}while(valor <= 0);
+					
+					contas.depositar(numero, valor);
 					keyPress();
 					break;
 				case 8:
-					System.out.println("Transferência entre as Contas: ");
-					System.out.print("Devedor: ");
-					Conta devedor = contas.pegarContaPorNumero(scan.nextInt());
+					System.out.println("Transferência entre Contas: ");
+					System.out.print("Digite o Numero da Conta de Origem: ");
+					numero = scan.nextInt();
 					
 					System.out.print("Recebedor: ");
+					numeroDestino = scan.nextInt();
 					
-					Conta recebedor = contas.pegarContaPorNumero(scan.nextInt());
-					
-					System.out.print("Valor: ");
-					float valor = scan.nextFloat();
-					
-					if(devedor.pagar(recebedor, valor)) System.out.println("Transferencia bem Sucedida!");
-					else System.out.println("Saldo Insuficiente!");
+					do {
+					System.out.print("Digite o Valor da Transferencia (R$): ");
+					valor = scan.nextFloat();
+					}while(valor <= 0);
+				
+					contas.transferir(numero, numeroDestino, valor);
 
 					keyPress();
 					break;

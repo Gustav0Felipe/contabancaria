@@ -99,14 +99,4 @@ public abstract class Conta {
 
 	}
 	
-	public boolean pagar(Conta conta, float valor) {
-		
-		if(saldo >= valor) {
-			this.saldo -= valor;
-			conta.saldo += valor;
-			return true;
-		}
-		else return false;
-			
-	}
 }
